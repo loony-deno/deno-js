@@ -45,3 +45,17 @@ export const decrypt = (encryptedText: string, password: string) => {
 
   return decrypted;
 };
+
+/** 
+  import { exit } from "node:process";
+  import { encrypt } from "./crypto.ts";
+
+  if (import.meta.main) {
+    const args = Deno.args;
+    if (args.length !== 2) {
+      exit();
+    }
+    const enc_res = encrypt(args[0], args[1]);
+    console.log(enc_res);
+  }
+ */
