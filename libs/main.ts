@@ -1,9 +1,19 @@
 import { exit } from "node:process";
-import { mergeSort, quickSort } from "./algo/index.ts";
+import { encrypt, decrypt } from "./crypto/index.ts";
 
 if (import.meta.main) {
-  // 2, 9, 6, 5, 8
-  const data = [3, 1, 4, 7];
-  const res = mergeSort(data);
-  console.log(res);
+  const args: string[] = Deno.args;
+  if (args.length !== 2) {
+    console.log("Usage: deno task run <text-to-encrypt> <password>");
+    exit();
+  }
+  const text = args[0];
+  const password = args[1];
+  const encrypted_text = await encrypt(text, password);
+  const decrypted_text = await decrypt(encrypted_text, password);
+
+  console.log({
+    encrypted_text,
+    decrypted_text,
+  });
 }
