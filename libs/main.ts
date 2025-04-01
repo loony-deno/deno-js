@@ -1,5 +1,5 @@
 import { exit } from "node:process";
-import { encrypt, decrypt } from "./crypto/index.ts";
+import { encrypt, decrypt } from "./aes/index.ts";
 
 if (import.meta.main) {
   const args: string[] = Deno.args;

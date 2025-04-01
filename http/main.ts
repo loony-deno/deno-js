@@ -1,5 +1,7 @@
 import { Application } from "jsr:@oak/oak/application";
 import { Router } from "jsr:@oak/oak/router";
+import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
+
 import crypto from "./crypto.ts";
 import pg from "./pg/index.ts";
 
@@ -13,6 +15,7 @@ router.get("/", (ctx) => {
 });
 
 const app = new Application();
+app.use(oakCors());
 app.use(router.routes());
 app.use(router.allowedMethods());
 

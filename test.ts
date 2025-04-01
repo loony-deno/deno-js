@@ -1,26 +1,13 @@
-type ArrayNumber = number[];
-
-function mergeSort(data: ArrayNumber): ArrayNumber {
-  if (data.length <= 2) {
-    if (data.length === 1) {
-      return data;
-    } else {
-      if (data[0] > data[1]) {
-        const t = data[0];
-        data[0] = data[1];
-        data[1] = t;
-        return data;
-      }
-      return data;
-    }
+function hash(key: string): number {
+  const size = 53;
+  let total = 0;
+  const prime = 31;
+  for (let i = 0; i < Math.min(key.length, 100); i++) {
+    total = (total * prime + key.charCodeAt(i)) % size;
+    console.log(total);
   }
-  const half = data.length / 2;
-  const firstHalf = data.slice(0, half);
-  const secondHalf = data.slice(half, data.length);
-
-  return [...mergeSort(firstHalf), ...mergeSort(secondHalf)];
+  return total;
 }
 
-const data = [3, 4, 1];
-const res = mergeSort(data);
+const res = hash("sankar");
 console.log(res);
