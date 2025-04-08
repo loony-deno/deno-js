@@ -1,3 +1,4 @@
+import { subtle, getRandomValues } from "node:crypto";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -6,7 +7,7 @@ async function deriveKey(
   password: string,
   salt: Uint8Array
 ): Promise<CryptoKey> {
-  const keyMaterial = await crypto.subtle.importKey(
+  const keyMaterial = await subtle.importKey(
     "raw",
     encoder.encode(password),
     { name: "PBKDF2" },
@@ -14,10 +15,10 @@ async function deriveKey(
     ["deriveKey"]
   );
 
-  return await crypto.subtle.deriveKey(
+  return await subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: salt,
+      salt,
       iterations: 100000,
       hash: "SHA-256",
     },
@@ -30,11 +31,11 @@ async function deriveKey(
 
 // Encrypt function
 async function encrypt(text: string, password: string): Promise<string> {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const salt = getRandomValues(new Uint8Array(16));
+  const iv = getRandomValues(new Uint8Array(12));
   const key = await deriveKey(password, salt);
 
-  const encryptedData = await crypto.subtle.encrypt(
+  const encryptedData = await subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
     encoder.encode(text)
@@ -66,7 +67,7 @@ async function decrypt(
 
   const key = await deriveKey(password, salt);
 
-  const decryptedData = await crypto.subtle.decrypt(
+  const decryptedData = await subtle.decrypt(
     { name: "AES-GCM", iv },
     key,
     data

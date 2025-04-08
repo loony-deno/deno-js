@@ -59,15 +59,168 @@ Here’s a documentation-style guide focused on best practices for securely encr
 
 ---
 
-### **Example of Secure AES-GCM Usage in Deno**
+The `crypto` module in Node.js provides cryptographic functionality, including hashing, encryption, decryption, key generation, and signing. It's built on OpenSSL, making it a powerful tool for securing applications.
 
-```typescript
-const iv = crypto.getRandomValues(new Uint8Array(12)); // Secure IV
-const key = await crypto.subtle.generateKey(
-  { name: "AES-GCM", length: 256 },
-  true,
-  ["encrypt", "decrypt"]
+---
+
+## 1. **Importing the `crypto` module**
+
+The `crypto` module is part of Node.js core, so you can require it without installing additional packages.
+
+```javascript
+const crypto = require("crypto");
+```
+
+---
+
+## 2. **Hashing Data**
+
+Hashing is a one-way function used to generate a fixed-length string from input data.
+
+### **Example: Creating a Hash**
+
+```javascript
+const hash = crypto.createHash("sha256").update("Hello, World!").digest("hex");
+console.log(hash);
+```
+
+- `createHash('sha256')`: Uses the SHA-256 algorithm.
+- `update('Hello, World!')`: Adds data to be hashed.
+- `digest('hex')`: Converts output to a readable format (hex, base64, etc.).
+
+### **Using HMAC (Hash-based Message Authentication Code)**
+
+HMAC is a hash function with a secret key for added security.
+
+```javascript
+const hmac = crypto
+  .createHmac("sha256", "secret-key")
+  .update("Hello, World!")
+  .digest("hex");
+console.log(hmac);
+```
+
+---
+
+## 3. **Generating Random Bytes**
+
+Useful for generating secure tokens.
+
+```javascript
+crypto.randomBytes(16, (err, buffer) => {
+  if (err) throw err;
+  console.log(buffer.toString("hex"));
+});
+```
+
+---
+
+## 4. **Encryption & Decryption (Symmetric)**
+
+AES (Advanced Encryption Standard) is commonly used for symmetric encryption.
+
+### **Example: Encrypting and Decrypting Data**
+
+```javascript
+const algorithm = "aes-256-cbc";
+const key = crypto.randomBytes(32); // 256-bit key
+const iv = crypto.randomBytes(16); // 128-bit IV
+
+// Encryption
+const cipher = crypto.createCipheriv(algorithm, key, iv);
+let encrypted = cipher.update("Hello, World!", "utf8", "hex");
+encrypted += cipher.final("hex");
+console.log("Encrypted:", encrypted);
+
+// Decryption
+const decipher = crypto.createDecipheriv(algorithm, key, iv);
+let decrypted = decipher.update(encrypted, "hex", "utf8");
+decrypted += decipher.final("utf8");
+console.log("Decrypted:", decrypted);
+```
+
+- `createCipheriv(algorithm, key, iv)`: Encrypts data.
+- `createDecipheriv(algorithm, key, iv)`: Decrypts data.
+- `update()`: Adds data to process.
+- `final()`: Completes the operation.
+
+---
+
+## 5. **Public-Key Cryptography (Asymmetric)**
+
+Uses a key pair (private & public) for encryption, decryption, signing, and verification.
+
+### **Generating a Key Pair**
+
+```javascript
+crypto.generateKeyPair(
+  "rsa",
+  {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: "spki", format: "pem" },
+    privateKeyEncoding: { type: "pkcs8", format: "pem" },
+  },
+  (err, publicKey, privateKey) => {
+    if (err) throw err;
+    console.log("Public Key:", publicKey);
+    console.log("Private Key:", privateKey);
+  }
 );
 ```
 
-Following these best practices ensures secure encryption and decryption in Deno applications.
+### **Signing and Verifying Data**
+
+```javascript
+const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+  modulusLength: 2048,
+  publicKeyEncoding: { type: "spki", format: "pem" },
+  privateKeyEncoding: { type: "pkcs8", format: "pem" },
+});
+
+const data = "Important message";
+const sign = crypto.createSign("sha256").update(data).sign(privateKey, "hex");
+console.log("Signature:", sign);
+
+const isVerified = crypto
+  .createVerify("sha256")
+  .update(data)
+  .verify(publicKey, sign, "hex");
+console.log("Verified:", isVerified);
+```
+
+- `createSign()`: Signs data with a private key.
+- `createVerify()`: Verifies a signature using a public key.
+
+---
+
+## 6. **Password Hashing with `pbkdf2`**
+
+Securely hashes passwords with a salt.
+
+```javascript
+crypto.pbkdf2(
+  "password123",
+  "salt",
+  100000,
+  64,
+  "sha512",
+  (err, derivedKey) => {
+    if (err) throw err;
+    console.log("Hashed Password:", derivedKey.toString("hex"));
+  }
+);
+```
+
+---
+
+## **Use Cases of `crypto` Module**
+
+- **Password hashing** (e.g., `bcrypt`, `pbkdf2`, `argon2`)
+- **Token generation** (e.g., `randomBytes`)
+- **Message integrity verification** (e.g., HMAC)
+- **Data encryption and decryption** (AES, RSA)
+- **Digital signatures** (signing and verifying)
+
+The `crypto` module is a core part of securing Node.js applications, and understanding its functions is crucial for building secure authentication systems and encrypting sensitive data.
+
+Want a deep dive into any specific feature? 🚀

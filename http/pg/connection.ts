@@ -1,6 +1,8 @@
 // deno run --allow-net --allow-read --unstable mod.ts
 import { Client } from "https://deno.land/x/postgres/mod.ts";
 import "jsr:@std/dotenv/load";
+import { OpenAI } from "@openai/openai";
+
 const user = Deno.env.get("PG_USERNAME");
 const database = Deno.env.get("PG_DATABASE");
 const hostname = Deno.env.get("PG_HOSTNAME");
@@ -13,4 +15,8 @@ export const client = new Client({
   hostname,
   password,
   port,
+});
+
+export const openaiClient = new OpenAI({
+  apiKey: process.env.OPEN_AI, // This is the default and can be omitted
 });
